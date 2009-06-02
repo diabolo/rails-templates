@@ -13,17 +13,17 @@
   git :init
  
   initializer '.gitignore', <<-CODE
-  log/\\*.log
-  log/\\*.pid
-  db/\\*.db
-  db/\\*.sqlite3
-  db/schema.rb
-  tmp/\\*\\*/\\*
   .DS_Store
-  doc/api
-  doc/app
   config/database.yml
   coverage/
+  db/*.sqlite3
+  db/*.sqlite3-journal  
+  doc/api
+  doc/app
+  log/*.log  
+  log/*.pid   
+  public/cache/**/*
+  tmp/**/*
   CODE
           
   inside('config') do
@@ -42,21 +42,41 @@
   gem "rspec-rails", :lib => "spec/rails", :env => 'test'
   gem "cucumber", :source => "http://gems.github.com", :env => 'test'
   gem "rcov", :env => 'test'
-
-                                              
-  rake("gems:install RAILS_ENV=test", :sudo => true)
-                                                    
+     
+  rake 'gems:install', :sudo => true, :env => 'test'    
   generate :rspec
   generate :cucumber 
   run "rm -rf /test"
+
+  plugin 'object_daddy',  :git => 'git://github.com/flogic/object_daddy.git'
   
   git :add => '.'
-  git :commit => "-a -m 'Setting up test environment, using cucumber and rspec'"
+  git :commit => "-a -m 'Setting up test environment, using cucumber, rspec, webrat, object_daddy'"
 
 
 # production
 # 
 
-  # haml
-  # run "haml --rails ."
+  # haml         
+  gem 'haml-edge', :lib => 'haml' 
+  rake 'gems:install GEM=haml-edge', :sudo => true   
+  run "haml --rails #{run "pwd"}"                                                         
+  git :add => '.'
+  git :commit => "-a -m 'Setup haml'"
+
+  #compass
+  gem 'chriseppstein-compass', :lib => "compass", :source => 'http://gems.github.com/'    
+  rake 'gems:install GEM=chriseppstein-compass', :sudo => true      
+        
+  run "compass --rails --framework blueprint --sass-dir app/stylesheets --css-dir public/stylesheets"
+  git :add => '.'
+  git :commit => "-a -m 'Setting up compass'"         
+  
+  
+  
+  
+  
+  
+  
+  
   
