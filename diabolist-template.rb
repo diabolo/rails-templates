@@ -23,15 +23,18 @@
   doc/api
   doc/app
   config/database.yml
+  coverage/
   CODE
- 
-  run "cp config/database.yml config/database.yml.sample"
+          
+  inside('config') do
+    run "cp database.yml database.sample.yml"
+  end
  
   git :add => "."
  
   git :commit => "-a -m 'Setting up a new rails app. Copy config/database.yml.sample to config/database.yml and customize.'"
  
-
+   
 
 # testing
 #
@@ -41,7 +44,19 @@
   gem "rcov", :env => 'test'
 
                                               
-  rake("gems:install", :sudo => true, :env => test)
-
+  rake("gems:install RAILS_ENV=test", :sudo => true)
+                                                    
+  generate :rspec
+  generate :cucumber 
+  run "rm -rf /test"
+  
   git :add => '.'
-  git :commit => "-a -m 'Testing stuff installed'"
+  git :commit => "-a -m 'Setting up test environment, using cucumber and rspec'"
+
+
+# production
+# 
+
+  # haml
+  # run "haml --rails ."
+  
