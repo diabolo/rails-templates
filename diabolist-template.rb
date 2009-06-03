@@ -48,7 +48,9 @@
   generate :cucumber 
   run "rm -rf /test"
 
-  plugin 'object_daddy',  :git => 'git://github.com/flogic/object_daddy.git'
+  plugin 'object_daddy',  :git => 'git://github.com/flogic/object_daddy.git', :submodule => true
+  git :submodule => "init"
+  git :submodule => "update"
   
   git :add => '.'
   git :commit => "-a -m 'Setting up test environment, using cucumber, rspec, webrat, object_daddy'"
@@ -64,16 +66,29 @@
   git :add => '.'
   git :commit => "-a -m 'Setup haml'"
 
-  #compass
+  # compass
   gem 'chriseppstein-compass', :lib => "compass", :source => 'http://gems.github.com/'    
   rake 'gems:install GEM=chriseppstein-compass', :sudo => true      
         
   run "compass --rails --framework blueprint --sass-dir app/stylesheets --css-dir public/stylesheets"
   git :add => '.'
   git :commit => "-a -m 'Setting up compass'"         
+
+  # restful auth
+  plugin 'restful-authentication', :git => 'git://github.com/technoweenie/restful-authentication.git', :submodule => true 
+  git :submodule => "init"
+  git :submodule => "update"
+  generate("authenticated", "user session")
+  git :add => '.'
+  git :commit => "-a -m 'Setup restful authentication'" 
+  
+  # finish up
+  rake('db:create:all')
+  rake('db:migrate') 
+  rake('db:test:clone') 
   
   
-  
+    
   
   
   
