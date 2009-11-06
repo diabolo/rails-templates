@@ -12,19 +12,19 @@
   # git:rails:new_app
   git :init
  
-  initializer '.gitignore', <<-CODE
-  .DS_Store
-  config/database.yml
-  coverage/
-  db/*.sqlite3
-  db/*.sqlite3-journal  
-  doc/api
-  doc/app
-  log/*.log  
-  log/*.pid   
-  public/cache/**/*
-  tmp/**/*
-  CODE
+  file '.gitignore', <<-CODE
+.DS_Store
+config/database.yml
+coverage/
+db/*.sqlite3
+db/*.sqlite3-journal  
+doc/api
+doc/app
+log/*.log  
+log/*.pid   
+public/cache/**/*
+tmp/**/*
+CODE
           
   inside('config') do
     run "cp database.yml database.sample.yml"
@@ -38,15 +38,18 @@
 
 # testing
 #
-  gem "rspec", :lib => "spec", :env => 'test'
-  gem "rspec-rails", :lib => "spec/rails", :env => 'test'
-  gem "cucumber", :source => "http://gems.github.com", :env => 'test'
-  gem "rcov", :env => 'test'
-     
-  rake 'gems:install', :sudo => true, :env => 'test'    
+  #run "touch config/environments/cucumber.rb"
+  %w(test).each do |env|
+    gem "rspec", :lib => false, :env => env
+    gem "rspec-rails", :lib => false, :env => env
+    gem "cucumber", :lib => false, :env => env
+    gem "rcov", :lib => false, :env => env
+    rake 'gems:install', :sudo => true, :env => env
+  end
+      
   generate :rspec
   generate :cucumber 
-  run "rm -rf /test"
+  #run "rm -rf /test"
 
   plugin 'object_daddy',  :git => 'git://github.com/flogic/object_daddy.git', :submodule => true
   git :submodule => "init"
@@ -60,27 +63,19 @@
 # 
 
   # haml         
-  gem 'haml-edge', :lib => 'haml' 
-  rake 'gems:install GEM=haml-edge', :sudo => true   
+  gem 'haml', :lib => 'haml' 
+  rake 'gems:install GEM=haml', :sudo => true   
   run "haml --rails #{run "pwd"}"                                                         
   git :add => '.'
   git :commit => "-a -m 'Setup haml'"
 
-  # compass
-  gem 'chriseppstein-compass', :lib => "compass", :source => 'http://gems.github.com/'    
-  rake 'gems:install GEM=chriseppstein-compass', :sudo => true      
-        
-  run "compass --rails --framework blueprint --sass-dir app/stylesheets --css-dir public/stylesheets"
+  # compass and susy
+  gem 'compass', :lib => false
+  gem 'compass-susy-plugin', :lib => 'susy' 
+  rake 'gems:install', :sudo => true              
+  run "compass -r susy -f susy --rails --sass-dir app/stylesheets --css-dir public/stylesheets"
   git :add => '.'
-  git :commit => "-a -m 'Setting up compass'"         
-
-  # restful auth
-  plugin 'restful-authentication', :git => 'git://github.com/technoweenie/restful-authentication.git', :submodule => true 
-  git :submodule => "init"
-  git :submodule => "update"
-  generate("authenticated", "user session")
-  git :add => '.'
-  git :commit => "-a -m 'Setup restful authentication'" 
+  git :commit => "-a -m 'Setting up compass with susy'"         
   
   # finish up
   rake('db:create:all')
