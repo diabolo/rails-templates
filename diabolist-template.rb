@@ -1,7 +1,7 @@
 # git initialisation
 #
 
-  
+
 # rails:rm_tmp_dirs
 ["./tmp/pids", "./tmp/sessions", "./tmp/sockets", "./tmp/cache"].each do |f|
   run("rmdir ./#{f}")
@@ -38,16 +38,18 @@ coverage/*
 vendor/rails
 CODE
 
-git :add => "."
-git :commit => "-a -m '.gitignore setup."
-        
+git :add => ".gitignore"
+git :commit => "-a -m '.gitignore setup.'"
+
+
 inside('config') do
   run "cp database.yml database.sample.yml"
 end
 
 git :add => "."
 git :commit => "-a -m 'Setup default database.yml using sqlite'"
- 
+
+
 ####################
 # testing
 ####################
@@ -60,9 +62,9 @@ git :commit => "-a -m 'Setup default database.yml using sqlite'"
   gem "rcov", :lib => false, :env => env
   rake 'gems:install', :sudo => true, :env => env
 end
-    
+
 generate :rspec
-generate :cucumber 
+generate :cucumber
 
 git :rm => "test/"
 #run "rm -rf /test"
@@ -79,38 +81,38 @@ git :commit => "-a -m 'Setting up test environment, using cucumber, rspec, webra
 # production
 ################
 
-# haml         
-gem 'haml', :lib => 'haml' 
-rake 'gems:install GEM=haml', :sudo => true   
-run "haml --rails #{run "pwd"}"                                                         
+# haml
+gem 'haml', :lib => 'haml'
+rake 'gems:install GEM=haml', :sudo => true
+run "haml --rails #{run "pwd"}"
 git :add => '.'
 git :commit => "-a -m 'Setup haml'"
 
 # compass and susy
 gem 'compass', :lib => false
-gem 'compass-susy-plugin', :lib => 'susy' 
-rake 'gems:install', :sudo => true              
+gem 'compass-susy-plugin', :lib => 'susy'
+rake 'gems:install', :sudo => true
 run "compass -r susy -f susy --rails --sass-dir app/stylesheets --css-dir public/stylesheets"
 git :add => '.'
-git :commit => "-a -m 'Setting up compass with susy'"         
+git :commit => "-a -m 'Setting up compass with susy'"
 
 # finish up
 rake('db:create:all')
-rake('db:migrate') 
-rake('db:test:clone') 
+rake('db:migrate')
+rake('db:test:clone')
 
-file 'app/lib/tasks/restart.rake', 
+file 'app/lib/tasks/restart.rake',
 %q{
 desc "Restart Passenger mod_rails under Apache 2.x"
 task :restart do
   FileUtils.touch(File.join(RAILS_ROOT, 'tmp', 'restart.txt'), :verbose => true)
-end  
+end
 }
-  
+
 git :add => '.'
-git :commit => "-a -m 'Setting up compass with susy'"         
-  
-  
-  
-  
-  
+git :commit => "-a -m 'Setting up compass with susy'"
+
+
+
+
+
