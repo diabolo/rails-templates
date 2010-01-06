@@ -54,27 +54,41 @@ git :commit => "-a -m 'Setup default database.yml using sqlite'"
 # testing
 ####################
 
-#run "touch config/environments/cucumber.rb"
-%w(test).each do |env|
-  gem "rspec", :lib => false, :env => env
-  gem "rspec-rails", :lib => false, :env => env
-  gem "cucumber", :lib => false, :env => env
-  gem "rcov", :lib => false, :env => env
-  rake 'gems:install', :sudo => true, :env => env
-end
+git :rm => "test/"
+git :add => "."
+git :commit => "-a -m 'Remove test_unit tests in preparation for rspec'"
+
+
+# configure test environment for rspec and cucumber
+# cucumber will configure its own environment later, but before we can do that we need
+# the cucumber-rails gem installed
+gem "rspec-rails", :lib => false, :env => 'test'
+gem "cucumber-rails", :lib => false, :env => 'test'
+
+git :add => "."
+git :commit => "-a -m 'configured config/test.rb to require rspec and cucumber so we can bootstrap test enviromnet'"
+
+rake 'gems:install', :sudo => true, :env => 'test'
 
 generate :rspec
-generate :cucumber
 
-git :rm => "test/"
-#run "rm -rf /test"
+git :add => "."
+git :commit => "-a -m 'run rspec generator'"
 
-plugin 'object_daddy',  :git => 'git://github.com/flogic/object_daddy.git', :submodule => true
-git :submodule => "init"
-git :submodule => "update"
+generate('cucumber', '--capybara --rspec')
 
 git :add => '.'
-git :commit => "-a -m 'Setting up test environment, using cucumber, rspec, webrat, object_daddy'"
+git :commit => "-a -m 'ran cucumber generator with --capybara --rspec'"
+
+# now install gems required by cucumber setup
+rake 'gems:install', :sudo => true, :env => 'cucumber'
+
+# plugin 'object_daddy',  :git => 'git://github.com/flogic/object_daddy.git', :submodule => true
+# git :submodule => "init"
+# git :submodule => "update"
+
+# git :add => '.'
+# git :commit => "-a -m 'Setting up test environment, using cucumber, rspec, webrat, object_daddy'"
 
 
 ################
@@ -110,7 +124,7 @@ end
 }
 
 git :add => '.'
-git :commit => "-a -m 'Setting up compass with susy'"
+git :commit => "-a -m 'Finishing up'"
 
 
 
